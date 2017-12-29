@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% block content-header %}
+<div style="padding: 15px">
+<div class="content-header" style="height: 50px; padding: 0px;">
+  <ol class="breadcrumb" style="float: left; position: static; font-size: 18px">
+    <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+    <li class="active">Dashboard</li>
+  </ol>
+</div>
+{% end %}
+
+{% block content %}
+<style>
+.taskName {
+  border:1px solid #a1a1a1;
+  padding:10px 40px;
+  background:#FFFFFF;
+  width:350px;
+  border-radius:5px;
+  -moz-border-radius:25px;
+}
+</style>
+
+<link rel="stylesheet" href="static/codemirror-5.32.0/lib/codemirror.css">
+<link rel="stylesheet" href="static/codemirror-5.32.0/theme/erlang-dark.css">
+<link rel="stylesheet" href="static/multiselect/multiselect-master/css/style.css">
+
+<script src="static/codemirror-5.32.0/lib/codemirror.js"></script>
+<script src="static/codemirror-5.32.0/mode/shell/shell.js"></script>
+<script src="static/codemirror-5.32.0/mode/python/python.js"></script>
+<script src="static/codemirror-5.32.0/mode/javascript/javascript.js"></script>
+<script src="static/multiselect/multiselect-master/dist/js/multiselect.min.js"></script>
+
+  <div style="padding: 15px">
+  <form class="form-horizontal">
+    <div class='taskName' style="width: 100%">
+    <div class="form-group" style="margin-top: 15px">
+      <label for="jobname" class="col-sm-1 control-label">作业名称</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="jobname" name="jobname" placeholder="job name">
+      </div>
+    </div>
+    </div>
+  </form>
+
+    <div class='taskName' style="width: 100%;margin-top: 20px">
+    <div class="form-group" style="margin-top: 15px">
+      <label for="taskname" class="col-sm-1 control-label">步骤名称</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="taskname" name="taskname" placeholder="task name">
+      </div>
+    </div>
+
+    <div class="form-group" style="margin-top: 15px">
+      <label for="scriptname" class="col-sm-1 control-label">脚本名称</label>
+      <div class="col-sm-10">
+        <input type="text" class="form-control" id="scriptname" name="scriptname" placeholder="script name">
+      </div>
+    </div>
+
+</div>
+
+<script>
+    jQuery(document).ready(function($) {
+    	$('.js-multiselect').multiselect({
+    		right: '#js_multiselect_to_1',
+    		rightAll: '#js_right_All_1',
+    		rightSelected: '#js_right_Selected_1',
+    		leftSelected: '#js_left_Selected_1',
+    		leftAll: '#js_left_All_1',
+    	})
+      m = $(".js_multiselect_to_1 option").text();
+      console.log('the m is', m);
+    });
+
+    $('.js_multiselect_to_1 ')
+
+    var myTextarea = document.getElementById("scriptshellcode");
+    var CodeMirrorEditor = CodeMirror.fromTextArea(myTextarea, {
+        lineNumbers: true,//是否显示行号
+        mode:"python",　//默认脚本编码
+        lineWrapping:true, //是否强制换行
+        lineNumbers: true,
+        theme: "erlang-dark"
+      });
+
+      var txt1 = $("#scriptshellcode").val();
+      var txt2=$("#scriptpythoncode").val();
+      var txt3='';
+
+      $("input:radio").click(function(){
+        var txt=CodeMirrorEditor.getValue(); //editor.getValue()获取textarea中的值
+        console.log('the txt is', txt);
+
+        var lang=$(this).prop("id");
+
+
+        if(lang=="scriptlang1") {
+                CodeMirrorEditor.setOption("mode","shell");//editor.setOption()设置脚本类型
+                CodeMirrorEditor.setValue(txt1);// editor.setValue()设置textarea中的值
+        }
+        else if(lang=="scriptlang2") {
+                CodeMirrorEditor.setOption("mode","python");
+                CodeMirrorEditor.setValue(txt2);
+        }
+        else {
+                CodeMirrorEditor.setOption("mode","javascript");
+                CodeMirrorEditor.setValue(txt3);
+
+       }
+      });
+
+    $.ajax({
+      type: 'GET',
+      url: "http://172.16.100.50/jasset/asset/searchuserasset/",
+      data: {
+        'username': 'hanhailin',
+      },
+      dataType: 'jsonp',
+      jsonp:"callback",
+      jsonpCallback:"success_jsonp",
+      timeout:3000,
+      dataFilter:function(json){
+           return json;
+      },
+      success:function(json,textStatus){
+        for (var i=0;i<json['hosts'].length;i++)
+        {
+          $(".js-multiselect").append("<option>" + json['hosts'][i] + "</option>")
+        }
+      },
+      error:function(XMLHttpRequest,textStatus,errorThrown){
+          console.log(textStatus);
+      },
+    }),
+
+    $('.btn').click(function(){
+      $.ajax({
+        type: 'POST',
+        url: "/newTask",
+        data: {
+          "jobname": $("#jobname").val(),
+          "taskname": $("#taskname").val(),
+          "scriptname": $("#scriptname").val(),
+          "scripttype": CodeMirrorEditor.getOption("mode"),
+          "scriptcontent": CodeMirrorEditor.getValue(),
+          "timeout": $("#tasktimeout").val(),
+          "hostname": function(){
+            var hostname = new Array();
+            $("#js_multiselect_to_1 option").each(function(){
+              hostname.push($(this).text());
+            });
+            return hostname.join(",");
+          }
+        },
+        traditional: true,
+        success: function(json) {
+          console.log('success');
+          alert("jobname: " + $("#jobname").val() + "\n" + "status:  " + "success !");
+          location.reload();
+        }
+    })
+
+    })
+</script>
+{% end %}

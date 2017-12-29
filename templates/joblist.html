@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% block content-header %}
+<div style="padding: 15px">
+<div class="content-header" style="height: 50px; padding: 0px;">
+  <ol class="breadcrumb" style="float: left; position: static; font-size: 18px">
+    <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+    <li class="active">Dashboard</li>
+  </ol>
+</div>
+{% end %}
+
+{% block content %}
+<style>
+/* .taskName {
+  border:1px solid #a1a1a1;
+  padding:10px 40px;
+  background:#FFFFFF;
+  width:650px;
+  border-radius:5px;
+  -moz-border-radius:25px;
+} */
+</style>
+
+  <div style="padding: 15px">
+    <div class="box">
+    <div class="box-header">
+      <h3 class="box-title">项目概览</h3>
+    </div>
+    <!-- /.box-header -->
+    <div class="box-body">
+      <table id="tablelist1" class="table table-bordered table-striped table-hover">
+        <thead>
+        <tr>
+          <th>服务名</th>
+          <th>项目负责人</th>
+          <th>运行实例个数</th>
+          <th>详情及操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+        <tfoot>
+        <tr>
+          <th>服务名</th>
+          <th>项目负责人</th>
+          <th>运行实例个数</th>
+          <th>详情及操作</th>
+        </tr>
+        </tfoot>
+      </table>
+    </div>
+    <!-- /.box-body -->
+  </div>
+  </div>
+
+<script>
+// function  projectdetail(obj) {
+//   var thisObj=$(obj);
+//   var jobname = thisObj.parent().siblings().first().text();
+//
+//   $.ajax({
+//     type: 'POST',
+//     url: '/api/joblist',
+//     data: {
+//       'action': 'hiddenjob',
+//       'jobname': jobname,
+//     },
+//     dataType: 'json',
+//     timeout: 1000,
+//
+//     success: function(json){
+//       if (json.code == 0)
+//       {
+//         alert('success delete');
+//         location.href="/jobdetail"
+//       }
+//     },
+//
+//     error:function(XMLHttpRequest,textStatus,errorThrown){
+//         console.log(textStatus);
+//     },
+//
+//   })
+// }
+
+function projectdetail(obj) {
+  location.href="/jobdetail"
+}
+
+$(document).ready( function () {
+
+    $.ajax({
+      type: 'GET',
+      url: "/api/joblist",
+      data: {
+        'username': 'hanhailin',
+      },
+      dataType: 'json',
+      timeout:5000,
+      dataFilter:function(json){
+           return json;
+      },
+
+      success:function(json,textStatus){
+        for (var i=0;i<json.length;i++) {
+          $("tbody").append(`
+            <tr>
+            <td>` + json[i].job_name + `</td>
+            <td>` + json[i].job_create_user + `</td>
+            <td>` + json[i].job_create_time + `</td>
+            <td>
+              <a href="#" class="btn btn-warning btn-xs" onclick="projectdetail(this)">
+                <span class="glyphicon glyphicon-th-list"></span>
+              </a>
+            </td>
+          </tr>
+            `)
+        }
+        $('#tablelist1').DataTable();
+      },
+
+      error:function(XMLHttpRequest,textStatus,errorThrown){
+          console.log(textStatus);
+      },
+    })
+
+});
+
+</script>
+{% end %}

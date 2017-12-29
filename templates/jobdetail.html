@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% block content-header %}
+<div style="padding: 15px">
+<div class="content-header" style="height: 50px; padding: 0px;">
+  <ol class="breadcrumb" style="float: left; position: static; font-size: 18px">
+    <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+    <li class="active">Dashboard</li>
+  </ol>
+</div>
+{% end %}
+
+{% block content %}
+<style>
+
+#control {
+  float: left;;
+}
+
+.taskName {
+  border:1px solid #a1a1a1;
+  padding:10px 40px;
+  background:#FFFFFF;
+  width:350px;
+  border-radius:5px;
+  -moz-border-radius:25px;
+}
+</style>
+
+  <div style="padding: 15px">
+    <div class="box">
+    <div class="box-header">
+      <h3 class="box-title">实例详情</h3>
+    </div>
+    <!-- /.box-header -->
+    <div class="box-body">
+      <table id="tablelist1" class="table table-bordered table-striped table-hover">
+        <thead>
+        <tr>
+          <th>
+            <input type="checkbox">
+          </th>
+          <th>运行的服务器</th>
+          <th>正在运行的版本</th>
+          <th>最近发布的时间</th>
+          <th>该版本的发布者</th>
+          <th>查看发布日志</th>
+          <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+    <!-- /.box-body -->
+  </div>
+  </div>
+
+<script>
+function  startjob(obj) {
+  var thisObj=$(obj);
+  thisObj.attr({ "disabled": "disabled" });
+  var jobname = thisObj.parent().siblings().first().text();
+
+  $.ajax({
+    type: 'POST',
+    url: '/api/joblist',
+    data: {
+      'action': 'startjob',
+      'jobname': jobname,
+    },
+    dataType: 'json',
+    timeout: 60000,
+
+    success: function(json){
+      if (json['code'] == 0)
+      {
+        console.log('the json is', json);
+        alert('start success');
+        location.reload()
+      }
+    },
+
+    error:function(XMLHttpRequest,textStatus,errorThrown){
+        console.log(textStatus);
+    },
+
+  })
+}
+
+  function  nodisplayjob(obj) {
+    var thisObj=$(obj);
+    var jobname = thisObj.parent().siblings().first().text();
+
+    $.ajax({
+      type: 'POST',
+      url: '/api/joblist',
+      data: {
+        'action': 'hiddenjob',
+        'jobname': jobname,
+      },
+      dataType: 'json',
+      timeout: 1000,
+
+      success: function(json){
+        if (json.code == 0)
+        {
+          alert('success delete');
+          location.reload()
+        }
+      },
+
+      error:function(XMLHttpRequest,textStatus,errorThrown){
+          console.log(textStatus);
+      },
+
+    })
+  }
+
+$(document).ready( function () {
+
+    $.ajax({
+      type: 'GET',
+      url: "/api/joblist",
+      data: {
+        'username': 'hanhailin',
+      },
+      dataType: 'json',
+      timeout:1000,
+      dataFilter:function(json){
+           return json;
+      },
+      success:function(json,textStatus){
+        for (var i=0;i<json.length;i++) {
+          $("tbody").append(`
+            <tr>
+            <td>
+              <input type="checkbox" style="margin-left: 8px">
+            </td>
+            <td>1.1.1.1</td>
+            <td>v9527</td>
+            <td>` + json[i].job_name + `</td>
+            <td>` + json[i].job_create_user + `</td>
+            <td>` + json[i].job_create_time + `</td>
+            <td>
+              <a href="#" class="btn btn-warning btn-xs" onclick="startjob(this)">发布
+              </a>
+              <a href="#" class="btn btn-success btn-xs" onclick="startjob(this)">重启
+              </a>
+              <a href="#" class="btn btn-info btn-xs" onclick="startjob(this)">回滚
+              </a>
+            </td>
+          </tr>
+            `)
+        }
+        $('#tablelist1').DataTable({
+          "dom": '<"toolbar">frtip'
+        });
+        $("div.toolbar").html(`
+          <div style="float: left">
+            <a style="margin-left:10px" href="#" class="btn btn-warning btn-xs" onclick="startjob(this)">发布</a>
+            <a style="margin-left:4px" href="#" class="btn btn-success btn-xs" onclick="startjob(this)">重启</a>
+            <a style="margin-left:4px" href="#" class="btn btn-info btn-xs" onclick="startjob(this)">回滚</a>
+          </div>
+        `);
+      },
+      error:function(XMLHttpRequest,textStatus,errorThrown){
+          console.log(textStatus);
+      },
+    })
+
+
+
+
+});
+
+</script>
+{% end %}
