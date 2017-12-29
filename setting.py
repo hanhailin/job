@@ -3,7 +3,7 @@
 
 mysql_db = {
     "name": "linmaochang",
-    "host": "172.16.100.50",
+    "host": "1.1.1.1",
     "port": 3306,
     "user": "hanhailin",
     "pswd": "123456",
@@ -11,10 +11,10 @@ mysql_db = {
 }
 
 redis_db = {
-    "redis_host": "172.16.100.50",
+    "redis_host": "1.1.1.1",
     "redis_port": 6379,
     "redis_pass": "123456",
-    "session_secret" : "4cd5b1f00333b6e78af30m466a4fc3377d596690c283030438b25e2277jl392",
+    "session_secret" : "11111111",
     "session_timeout" : 10800,
     "session_db": 0,
 }
